@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "timezone": "Asia/Bangkok",
+  "periodTimes": {
+    "1": { "start": "08:30", "end": "09:20" },
+    "2": { "start": "09:25", "end": "10:15" },
+    "3": { "start": "10:25", "end": "11:15" },
+    "4": { "start": "11:15", "end": "12:05" },
+    "5": { "start": "13:00", "end": "13:50" },
+    "6": { "start": "13:50", "end": "14:40" },
+    "7": { "start": "14:40", "end": "15:30" },
+    "8": { "start": "15:30", "end": "16:20" },
+    "9": { "start": "16:20", "end": "17:10" },
+    "10": { "start": "17:10", "end": "18:00" }
+  },
+  "lessons": [
+    { "dayOfWeek": 1, "period": 1, "subjectCode": "ค32101", "subjectName": "คณิตศาสตร์เพิ่มเติม" },
+    { "dayOfWeek": 1, "period": 2, "subjectCode": "ว32101", "subjectName": "ฟิสิกส์" },
+    { "dayOfWeek": 1, "period": 3, "subjectCode": "อ32101", "subjectName": "ภาษาอังกฤษ" },
+    { "dayOfWeek": 1, "period": 4, "subjectCode": "ท32101", "subjectName": "ภาษาไทย" },
+    { "dayOfWeek": 1, "period": 5, "subjectCode": "ส32101", "subjectName": "สังคมศึกษา" },
+    { "dayOfWeek": 1, "period": 6, "subjectCode": "ว32102", "subjectName": "เคมี" },
+    { "dayOfWeek": 1, "period": 7, "subjectCode": "พ32101", "subjectName": "สุขศึกษา" },
+    { "dayOfWeek": 1, "period": 8, "subjectCode": "ง32101", "subjectName": "การงานอาชีพ" },
+
+    { "dayOfWeek": 2, "period": 1, "subjectCode": "ว32102", "subjectName": "เคมี" },
+    { "dayOfWeek": 2, "period": 2, "subjectCode": "ค32101", "subjectName": "คณิตศาสตร์เพิ่มเติม" },
+    { "dayOfWeek": 2, "period": 3, "subjectCode": "อ32101", "subjectName": "ภาษาอังกฤษ" },
+    { "dayOfWeek": 2, "period": 4, "subjectCode": "ค32102", "subjectName": "คณิตศาสตร์พื้นฐาน" },
+    { "dayOfWeek": 2, "period": 5, "subjectCode": "ว32103", "subjectName": "ชีววิทยา" },
+    { "dayOfWeek": 2, "period": 6, "subjectCode": "ท32101", "subjectName": "ภาษาไทย" },
+    { "dayOfWeek": 2, "period": 7, "subjectCode": "ส32101", "subjectName": "สังคมศึกษา" },
+    { "dayOfWeek": 2, "period": 8, "subjectCode": "ศ32101", "subjectName": "ศิลปะ" },
+
+    { "dayOfWeek": 3, "period": 1, "subjectCode": "ท32101", "subjectName": "ภาษาไทย" },
+    { "dayOfWeek": 3, "period": 2, "subjectCode": "ค32102", "subjectName": "คณิตศาสตร์พื้นฐาน" },
+    { "dayOfWeek": 3, "period": 3, "subjectCode": "ว32101", "subjectName": "ฟิสิกส์" },
+    { "dayOfWeek": 3, "period": 4, "subjectCode": "อ32101", "subjectName": "ภาษาอังกฤษ" },
+    { "dayOfWeek": 3, "period": 5, "subjectCode": "ค32101", "subjectName": "คณิตศาสตร์เพิ่มเติม" },
+    { "dayOfWeek": 3, "period": 6, "subjectCode": "ว32103", "subjectName": "ชีววิทยา" },
+    { "dayOfWeek": 3, "period": 7, "subjectCode": "ง32101", "subjectName": "การงานอาชีพ" },
+    { "dayOfWeek": 3, "period": 8, "subjectCode": "พ32101", "subjectName": "สุขศึกษา" },
+
+    { "dayOfWeek": 4, "period": 1, "subjectCode": "ส32101", "subjectName": "สังคมศึกษา" },
+    { "dayOfWeek": 4, "period": 2, "subjectCode": "อ32101", "subjectName": "ภาษาอังกฤษ" },
+    { "dayOfWeek": 4, "period": 3, "subjectCode": "ค32101", "subjectName": "คณิตศาสตร์เพิ่มเติม" },
+    { "dayOfWeek": 4, "period": 4, "subjectCode": "ว32102", "subjectName": "เคมี" },
+    { "dayOfWeek": 4, "period": 5, "subjectCode": "ท32101", "subjectName": "ภาษาไทย" },
+    { "dayOfWeek": 4, "period": 6, "subjectCode": "ว32101", "subjectName": "ฟิสิกส์" },
+    { "dayOfWeek": 4, "period": 7, "subjectCode": "ศ32101", "subjectName": "ศิลปะ" },
+    { "dayOfWeek": 4, "period": 8, "subjectCode": "ส32102", "subjectName": "ประวัติศาสตร์" },
+
+    { "dayOfWeek": 5, "period": 1, "subjectCode": "ว32103", "subjectName": "ชีววิทยา" },
+    { "dayOfWeek": 5, "period": 2, "subjectCode": "ค32102", "subjectName": "คณิตศาสตร์พื้นฐาน" },
+    { "dayOfWeek": 5, "period": 3, "subjectCode": "ส32101", "subjectName": "สังคมศึกษา" },
+    { "dayOfWeek": 5, "period": 4, "subjectCode": "ท32101", "subjectName": "ภาษาไทย" },
+    { "dayOfWeek": 5, "period": 5, "subjectCode": "อ32101", "subjectName": "ภาษาอังกฤษ" },
+    { "dayOfWeek": 5, "period": 6, "subjectCode": "ค32101", "subjectName": "คณิตศาสตร์เพิ่มเติม" }
+  ]
+}

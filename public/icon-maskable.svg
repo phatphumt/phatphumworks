@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="งานของฉัน">
+  <rect width="512" height="512" fill="#0d9488"/>
+  <path d="M256 156 128 218l128 61 128-61-128-62Z" fill="#00201c"/>
+  <path d="M176 268v61c0 27 35 48 80 48s80-21 80-48v-61l-80 38-80-38Z" fill="#00201c" opacity="0.82"/>
+</svg>
