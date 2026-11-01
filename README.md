@@ -53,6 +53,9 @@ replaced, sample tasks are only inserted when the task table is empty).
 | `TURSO_DATABASE_URL` | `file:local.db` locally, `libsql://…turso.io` in production. |
 | `TURSO_AUTH_TOKEN` | Turso token (empty locally). |
 | `NEXT_PUBLIC_APP_URL` | Public URL, shown on the Settings page. |
+| `VAPID_PUBLIC_KEY` | Web Push public key (from `node scripts/gen-vapid.mjs`). |
+| `VAPID_PRIVATE_KEY` | Web Push private key (keep secret). |
+| `VAPID_SUBJECT` | `mailto:` or `https:` URL identifying the push sender. |
 
 ## The timetable JSON
 
@@ -165,6 +168,7 @@ external.
 | `npm run lint` | ESLint |
 | `npx tsc --noEmit` | Typecheck only |
 | `node scripts/seed.mjs` | Example timetable + sample tasks (idempotent) |
+| `node scripts/gen-vapid.mjs` | Generate VAPID keys for push notifications |
 | `node scripts/notify.mjs "ข้อความ"` | Post a message to the webhook (phase pings) |
 | `npx drizzle-kit push --force` | Apply schema changes |
 

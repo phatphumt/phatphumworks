@@ -3,6 +3,7 @@ import { IBM_Plex_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { ServiceWorkerRegister } from "@/components/service-worker-register";
 
 const ibmPlexThai = IBM_Plex_Sans_Thai({
   variable: "--font-ibm-plex-sans-thai",
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           {children}
           <Toaster position="top-center" richColors closeButton />
+          <ServiceWorkerRegister />
         </ThemeProvider>
       </body>
     </html>

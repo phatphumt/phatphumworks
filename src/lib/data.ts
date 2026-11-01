@@ -1,7 +1,7 @@
 import { and, asc, eq, isNull, lte, sql } from "drizzle-orm";
 import { db } from "./db";
-import { digestLog, lessons, settings, tasks } from "./db/schema";
-import type { DigestLog, Lesson, Task } from "./db/schema";
+import { digestLog, lessons, pushLog, pushSubscriptions, settings, tasks } from "./db/schema";
+import type { DigestLog, Lesson, PushLog, PushSubscription, Task } from "./db/schema";
 import { addDaysISO, todayISO } from "./time";
 import { DIGEST_TIME, DIGEST_WINDOW_DAYS, type PeriodTimes } from "./validation";
 
@@ -36,6 +36,40 @@ export async function getVisibleTasks(): Promise<Task[]> {
 export async function getTask(id: string): Promise<Task | undefined> {
   const rows = await db.select().from(tasks).where(eq(tasks.id, id)).limit(1);
   return rows[0];
+}
+
+/** All push subscriptions (one row per device). */
+export async function getPushSubscriptions(): Promise<PushSubscription[]> {
+  return db.select().from(pushSubscriptions);
+}
+
+export async function upsertPushSubscription(input: {
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+}): Promise<void> {
+  await db
+    .insert(pushSubscriptions)
+    .values(input)
+    .onConflictDoUpdate({
+      target: pushSubscriptions.endpoint,
+      set: { p256dh: input.p256dh, auth: input.auth },
+    });
+}
+
+export async function deletePushSubscription(endpoint: string): Promise<void> {
+  await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, endpoint));
+}
+
+export async function getPushLog(date: string): Promise<PushLog[]> {
+  return db.select().from(pushLog).where(eq(pushLog.date, date));
+}
+
+export async function recordPushLog(date: string, period: number): Promise<void> {
+  await db
+    .insert(pushLog)
+    .values({ date, period })
+    .onConflictDoNothing();
 }
 
 /** Every task ever recorded, archived rows included — used by monthly export. */

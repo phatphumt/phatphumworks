@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Bell,
+  BellOff,
   Check,
   ChevronDown,
   Clock,
@@ -79,6 +81,17 @@ const THEME_LABEL: Record<ThemeChoice, string> = {
 const timeInputClass =
   "h-11 w-[116px] rounded-[8px] border-0 bg-fill px-2 text-right text-[15px] text-foreground tabular outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
 
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 export function SettingsView({
   initialWebhook,
   initialDigestTime,
@@ -93,6 +106,21 @@ export function SettingsView({
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const mounted = useMounted();
+  const isIOS =
+    mounted &&
+    /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+    !("MSStream" in window);
+  const isStandalone =
+    mounted &&
+    (window.matchMedia("(display-mode: standalone)").matches ||
+      (navigator as { standalone?: boolean }).standalone === true);
+
+  const pushSupported =
+    mounted &&
+    typeof window !== "undefined" &&
+    "serviceWorker" in navigator &&
+    "PushManager" in window &&
+    "Notification" in window;
 
   const [webhook, setWebhook] = useState(initialWebhook);
   const [reveal, setReveal] = useState(false);
@@ -106,6 +134,9 @@ export function SettingsView({
   const [wipeOpen, setWipeOpen] = useState(false);
   const [wipeWord, setWipeWord] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState<string | null>(null);
 
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -114,6 +145,16 @@ export function SettingsView({
       if (savedTimer.current) clearTimeout(savedTimer.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!pushSupported) return;
+    navigator.serviceWorker.ready
+      .then(async (registration) => {
+        const subscription = await registration.pushManager.getSubscription();
+        setPushSubscribed(!!subscription);
+      })
+      .catch(() => {});
+  }, [pushSupported]);
 
   function flashSaved() {
     setSavedAt(Date.now());
@@ -207,6 +248,83 @@ export function SettingsView({
     } catch {
       toast.error("ออกจากระบบไม่สำเร็จ");
       setBusy(false);
+    }
+  }
+
+  async function enablePush() {
+    setPushBusy(true);
+    setPushError(null);
+    try {
+      if (!("Notification" in window)) throw new Error("not-supported");
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") throw new Error("permission-denied");
+
+      const registration = await navigator.serviceWorker.ready;
+      const keyResponse = await fetch("/api/push/vapid");
+      if (!keyResponse.ok) throw new Error("vapid");
+      const { publicKey } = (await keyResponse.json()) as { publicKey: string };
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey) as BufferSource,
+      });
+      const json = subscription.toJSON() as {
+        endpoint?: string;
+        keys?: { p256dh?: string; auth?: string };
+      };
+      if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
+        throw new Error("invalid-subscription");
+      }
+
+      const response = await fetch("/api/push/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint: json.endpoint,
+          keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+        }),
+      });
+      if (!response.ok) throw new Error("subscribe-failed");
+
+      setPushSubscribed(true);
+      toast.success("เปิด Push แล้ว");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "subscribe-failed";
+      const friendly =
+        message === "permission-denied"
+          ? "คุณปฏิเสธการแจ้งเตือน"
+          : message === "vapid"
+            ? "เซิร์ฟเวอร์ยังไม่ตั้งค่า VAPID"
+            : "เปิด Push ไม่สำเร็จ";
+      setPushError(friendly);
+      toast.error(friendly);
+    } finally {
+      setPushBusy(false);
+    }
+  }
+
+  async function disablePush() {
+    setPushBusy(true);
+    setPushError(null);
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        await fetch("/api/push/unsubscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ endpoint: subscription.endpoint }),
+        });
+        await subscription.unsubscribe();
+      }
+      setPushSubscribed(false);
+      toast.success("ปิด Push แล้ว");
+    } catch {
+      setPushError("ปิด Push ไม่สำเร็จ");
+      toast.error("ปิด Push ไม่สำเร็จ");
+    } finally {
+      setPushBusy(false);
     }
   }
 
@@ -452,6 +570,51 @@ export function SettingsView({
           <Trash2 className="size-[18px]" aria-hidden="true" />
           ล้างข้อมูลงานทั้งหมด
         </button>
+      </ListSection>
+
+      <ListSection
+        title="Push หลังคาบ"
+        footer={
+          mounted && isIOS && !isStandalone
+            ? "iOS: ติดตั้งแอปลง Home Screen ก่อน จึงเปิด Push ได้"
+            : "แจ้งเตือนเฉพาะคาบที่มีเรียน เมื่อคาบจบ"
+        }
+      >
+        <ListRow className="justify-between">
+          <span className="text-[15px]">สถานะ</span>
+          <span className="text-[13px] text-muted-foreground">
+            {!pushSupported
+              ? "ไม่รองรับ"
+              : pushSubscribed
+                ? "เปิดอยู่"
+                : "ปิดอยู่"}
+          </span>
+        </ListRow>
+
+        {pushSupported ? (
+          <div className="p-3">
+            <Button
+              type="button"
+              onClick={pushSubscribed ? disablePush : enablePush}
+              disabled={pushBusy}
+              className="h-11 w-full rounded-full"
+            >
+              {pushBusy ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              ) : pushSubscribed ? (
+                <BellOff className="size-4" aria-hidden="true" />
+              ) : (
+                <Bell className="size-4" aria-hidden="true" />
+              )}
+              {pushSubscribed ? "ปิด Push" : "เปิด Push"}
+            </Button>
+            {pushError ? (
+              <p className="mt-2 text-[13px] text-destructive" role="alert">
+                {pushError}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
       </ListSection>
 
       <ListSection title="บัญชี">

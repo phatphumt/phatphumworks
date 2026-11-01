@@ -57,7 +57,33 @@ export const digestLog = sqliteTable("digest_log", {
   error: text("error"),
 });
 
+/** Web Push subscriptions, one row per device. */
+export const pushSubscriptions = sqliteTable("push_subscriptions", {
+  endpoint: text("endpoint").primaryKey(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
+/** Idempotency lock for per-period push notifications. */
+export const pushLog = sqliteTable(
+  "push_log",
+  {
+    date: text("date").notNull(),
+    period: integer("period").notNull(),
+    sentAt: integer("sent_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => [primaryKey({ columns: [table.date, table.period] })],
+);
+
 export type Lesson = typeof lessons.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
 export type DigestLog = typeof digestLog.$inferSelect;
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type PushLog = typeof pushLog.$inferSelect;
